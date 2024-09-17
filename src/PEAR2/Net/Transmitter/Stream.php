@@ -518,19 +518,19 @@ class Stream
                 $meta = stream_get_meta_data($this->stream);
                 return !$meta['eof'];
             }
-
-            $w = $e = null;
+            $w = $e = [];
             $r = array($this->stream);
             return 1 === @/* due to PHP bug #54563 */stream_select(
-                $r,
-                $w,
-                $e,
-                $sTimeout,
-                $usTimeout
-            );
+                    $r,
+                    $w,
+                    $e,
+                    $sTimeout,
+                    $usTimeout
+                );
         }
         return false;
     }
+
 
     /**
      * Checks whether the wrapped stream can be written to without a block.
