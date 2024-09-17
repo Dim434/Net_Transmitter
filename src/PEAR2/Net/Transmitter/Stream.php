@@ -515,6 +515,8 @@ class Stream
     {
         if (self::isStream($this->stream)) {
             if (null === $sTimeout && !$this->isBlocking) {
+                error_log('Stream is not blocking');
+                error_log("Res of feof" . !feof($this->stream) . json_encode(array($this->stream)));
                 $meta = stream_get_meta_data($this->stream);
                 return !feof($this->stream);
             }
