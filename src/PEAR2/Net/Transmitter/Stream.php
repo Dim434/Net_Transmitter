@@ -516,7 +516,7 @@ class Stream
         if (self::isStream($this->stream)) {
             if (null === $sTimeout && !$this->isBlocking) {
                 $meta = stream_get_meta_data($this->stream);
-                return !$meta['eof'];
+                return feof($this->stream);
             }
             $w = $e = [];
             $r = array($this->stream);
