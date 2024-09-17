@@ -530,6 +530,7 @@ class Stream
                     $usTimeout
                 );
         }
+        error_log("not a stream");
         return false;
     }
 
