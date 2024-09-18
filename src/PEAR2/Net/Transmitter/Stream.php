@@ -515,35 +515,63 @@ class Stream
     {
         if (self::isStream($this->stream)) {
             if (null === $sTimeout && !$this->isBlocking) {
-                error_log('Stream is not blocking');
-                error_log("Res of feof" . !feof($this->stream) . json_encode(array($this->stream)));
                 $meta = stream_get_meta_data($this->stream);
-                return !feof($this->stream);
+                return !$meta['eof'];
             }
-            error_log("sent stream select");
-            if ($usTimeout === 0) {
-                $usTimeout = null;
-            }
-            error_log("usTimeout: " . $usTimeout . "sTimeout: " . $sTimeout . ' ' . "isBlocking: " . $this->isBlocking);
-            $w = $e = [];
-            $r = array($this->stream);
-            try {
-                return 1 === /* due to PHP bug #54563 */ stream_select(
+
+            $w = $e = []; // Инициализируем как массивы
+            $r = [$this->stream];
+
+            while (true) {
+                try {
+                    $result = stream_select(
                         $r,
                         $w,
                         $e,
                         $sTimeout,
                         $usTimeout
                     );
-            } catch (\Throwable $e) {
-                // Логируем исключение или обрабатываем его другим способом
-                error_log('stream_select failed: ' . $e->getMessage());
-                return false;
+                } catch (\Throwable $ex) {
+                    if ($this->isInterruptedSystemCall($ex)) {
+                        // Прерванный системный вызов, повторяем попытку
+                        continue;
+                    } else {
+                        // Другая ошибка, логируем и выходим
+                        error_log('stream_select вызвал исключение: ' . $ex->getMessage());
+                        return false;
+                    }
+                }
+
+                if ($result === false) {
+                    // Проверяем последнюю ошибку
+                    $error = error_get_last();
+                    if ($this->isInterruptedSystemCall($error)) {
+                        // Прерванный системный вызов, повторяем попытку
+                        continue;
+                    } else {
+                        // Другая ошибка, логируем и выходим
+                        error_log('stream_select вернул false: ' . $error['message']);
+                        return false;
+                    }
+                }
+
+                // Успешный вызов
+                return $result > 0;
             }
         }
-        error_log("not a stream");
         return false;
     }
+
+    private function isInterruptedSystemCall($error)
+    {
+        if (is_array($error)) {
+            return strpos($error['message'], 'Interrupted system call') !== false;
+        } elseif ($error instanceof \Throwable) {
+            return strpos($error->getMessage(), 'Interrupted system call') !== false;
+        }
+        return false;
+    }
+
 
 
     /**
