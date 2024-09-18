@@ -521,6 +521,9 @@ class Stream
                 return !feof($this->stream);
             }
             error_log("sent stream select");
+            if ($usTimeout === 0) {
+                $usTimeout = null;
+            }
             error_log("usTimeout: " . $usTimeout . "sTimeout: " . $sTimeout . ' ' . "isBlocking: " . $this->isBlocking);
             $w = $e = [];
             $r = array($this->stream);
