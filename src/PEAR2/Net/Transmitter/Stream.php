@@ -527,13 +527,19 @@ class Stream
             error_log("usTimeout: " . $usTimeout . "sTimeout: " . $sTimeout . ' ' . "isBlocking: " . $this->isBlocking);
             $w = $e = [];
             $r = array($this->stream);
-            return 1 === @/* due to PHP bug #54563 */stream_select(
-                    $r,
-                    $w,
-                    $e,
-                    $sTimeout,
-                    $usTimeout
-                );
+            try {
+                return 1 === /* due to PHP bug #54563 */ stream_select(
+                        $r,
+                        $w,
+                        $e,
+                        $sTimeout,
+                        $usTimeout
+                    );
+            } catch (\Throwable $e) {
+                // Логируем исключение или обрабатываем его другим способом
+                error_log('stream_select failed: ' . $e->getMessage());
+                return false;
+            }
         }
         error_log("not a stream");
         return false;

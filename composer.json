@@ -16,7 +16,7 @@
         "wiki": "http://github.com/pear2/Net_Transmitter/wiki"
     },
     "require": {
-        "php": ">=5.3.0"
+        "php": ">=7.0"
     },
     "require-dev": {
         "phpunit/phpunit": "@stable"
