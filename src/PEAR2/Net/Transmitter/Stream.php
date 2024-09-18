@@ -521,6 +521,7 @@ class Stream
                 return !feof($this->stream);
             }
             error_log("sent stream select");
+            error_log("sTimeout: " . $sTimeout . ' ' . "isBlocking: " . $this->isBlocking);
             $w = $e = [];
             $r = array($this->stream);
             return 1 === @/* due to PHP bug #54563 */stream_select(
