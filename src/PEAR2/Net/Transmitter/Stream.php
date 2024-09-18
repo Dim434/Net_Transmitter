@@ -520,6 +520,7 @@ class Stream
                 $meta = stream_get_meta_data($this->stream);
                 return !feof($this->stream);
             }
+            error_log("sent stream select");
             $w = $e = [];
             $r = array($this->stream);
             return 1 === @/* due to PHP bug #54563 */stream_select(
